@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	usersTable = "users"
+	UsersTable = "users"
 )
 
 func NewClient(cfg *config.PostgresConfig) (*sqlx.DB, error) {

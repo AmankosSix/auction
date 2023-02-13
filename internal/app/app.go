@@ -3,6 +3,7 @@ package app
 import (
 	"auction/internal/config"
 	delivery "auction/internal/handler/http"
+	"auction/internal/repository"
 	"auction/internal/server"
 	"auction/internal/service"
 	"auction/pkg/database"
@@ -25,14 +26,16 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	_, err = database.NewClient(&cfg.Postgres)
+	db, err := database.NewClient(&cfg.Postgres)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
 
+	repos := repository.NewRepositories(db)
 	services := service.NewService(service.Deps{
+		Repos:  repos,
 		Hasher: hasher,
 	})
 	handlers := delivery.NewHandler(services)

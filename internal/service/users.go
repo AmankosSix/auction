@@ -2,18 +2,21 @@ package service
 
 import (
 	"auction/internal/model"
+	"auction/internal/repository"
 	"auction/pkg/hash"
 	"context"
-	"github.com/sirupsen/logrus"
+	"errors"
 	"time"
 )
 
 type UsersService struct {
+	repo   repository.Users
 	hasher hash.PasswordHasher
 }
 
-func NewUsersService(hasher hash.PasswordHasher) *UsersService {
+func NewUsersService(repo repository.Users, hasher hash.PasswordHasher) *UsersService {
 	return &UsersService{
+		repo:   repo,
 		hasher: hasher,
 	}
 }
@@ -33,7 +36,13 @@ func (s *UsersService) SignUp(ctx context.Context, input UserSignUpInput) error 
 		LastVisitAt:  time.Now(),
 	}
 
-	logrus.Info(user)
+	if err = s.repo.Create(ctx, user); err != nil {
+		if errors.Is(err, model.ErrUserAlreadyExists) {
+			return err
+		}
+
+		return err
+	}
 
 	return nil
 }

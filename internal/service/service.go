@@ -1,6 +1,7 @@
 package service
 
 import (
+	"auction/internal/repository"
 	"auction/pkg/hash"
 	"context"
 )
@@ -21,11 +22,12 @@ type Services struct {
 }
 
 type Deps struct {
+	Repos  *repository.Repositories
 	Hasher hash.PasswordHasher
 }
 
 func NewService(deps Deps) *Services {
-	usersService := NewUsersService(deps.Hasher)
+	usersService := NewUsersService(deps.Repos.Users, deps.Hasher)
 
 	return &Services{
 		Users: usersService,
