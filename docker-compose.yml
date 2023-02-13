@@ -25,19 +25,3 @@ services:
     environment:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASS
-
-  migrate:
-    image: auction-migrate
-    container_name: auction-migrate
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - postgresql
-    volumes:
-      - ./.bin/:/root/
-      - ./internal:/schema
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
