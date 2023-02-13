@@ -3,15 +3,19 @@ package http
 import (
 	"auction/internal/config"
 	v1 "auction/internal/handler/http/v1"
+	"auction/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type Handler struct {
+	services *service.Services
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(services *service.Services) *Handler {
+	return &Handler{
+		services: services,
+	}
 }
 
 func (h *Handler) Init(cfg *config.Config) *gin.Engine {
@@ -29,7 +33,7 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine) {
-	handlerV1 := v1.NewHandler()
+	handlerV1 := v1.NewHandler(h.services)
 	api := router.Group("/api")
 	{
 		handlerV1.Init(api)

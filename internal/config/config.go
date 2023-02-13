@@ -10,6 +10,7 @@ type (
 	Config struct {
 		Postgres PostgresConfig
 		HTTP     HTTPConfig
+		Auth     AuthConfig
 	}
 
 	PostgresConfig struct {
@@ -28,6 +29,10 @@ type (
 		WriteTimeout       time.Duration
 		MaxHeaderMegabytes int
 	}
+
+	AuthConfig struct {
+		PasswordSalt string
+	}
 )
 
 func Init() (*Config, error) {
@@ -37,6 +42,7 @@ func Init() (*Config, error) {
 
 	cfg.Postgres.setPostgresConfig()
 	cfg.HTTP.setHTTPConfig()
+	cfg.Auth.setAuthConfig()
 
 	return &cfg, nil
 }
@@ -61,6 +67,10 @@ func (p *PostgresConfig) setPostgresConfig() {
 func (h *HTTPConfig) setHTTPConfig() {
 	h.Host = os.Getenv("HTTP_HOST")
 	viper.UnmarshalKey("http", &h)
+}
+
+func (a *AuthConfig) setAuthConfig() {
+	a.PasswordSalt = os.Getenv("PASSWORD_SALT")
 }
 
 func initConfig() error {

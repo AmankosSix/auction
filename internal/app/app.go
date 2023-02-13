@@ -4,7 +4,9 @@ import (
 	"auction/internal/config"
 	delivery "auction/internal/handler/http"
 	"auction/internal/server"
+	"auction/internal/service"
 	"auction/pkg/database"
+	"auction/pkg/hash"
 	"context"
 	"errors"
 	_ "github.com/joho/godotenv/autoload"
@@ -28,7 +30,12 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	handlers := delivery.NewHandler()
+	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+
+	services := service.NewService(service.Deps{
+		Hasher: hasher,
+	})
+	handlers := delivery.NewHandler(services)
 
 	srv := server.NewServer(&cfg.HTTP, handlers.Init(cfg))
 

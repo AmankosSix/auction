@@ -1,12 +1,18 @@
 package v1
 
-import "github.com/gin-gonic/gin"
+import (
+	"auction/internal/service"
+	"github.com/gin-gonic/gin"
+)
 
 type Handler struct {
+	services *service.Services
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(services *service.Services) *Handler {
+	return &Handler{
+		services: services,
+	}
 }
 
 func (h *Handler) Init(api *gin.RouterGroup) {

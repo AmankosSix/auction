@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"auction/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -22,6 +24,18 @@ type userSignUpInput struct {
 func (h *Handler) userSignUp(c *gin.Context) {
 	var input userSignUpInput
 	if err := c.BindJSON(&input); err != nil {
+		logrus.Info("something went wrong")
+		newResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	if err := h.services.Users.SignUp(c.Request.Context(), service.UserSignUpInput{
+		Name:     input.Name,
+		Email:    input.Email,
+		Phone:    input.Phone,
+		Password: input.Password,
+	}); err != nil {
 		newResponse(c, http.StatusBadRequest, err.Error())
 
 		return
