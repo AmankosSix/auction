@@ -8,10 +8,6 @@ import (
 )
 
 func Run() {
-	//if err := godotenv.Load(); err != nil {
-	//	log.Fatal(err)
-	//}
-
 	cfg, err := config.Init()
 	if err != nil {
 		log.Fatal(err)
@@ -21,5 +17,4 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("connection is stable")
 }

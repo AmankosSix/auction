@@ -27,6 +27,14 @@ func Init() (*Config, error) {
 	return &cfg, nil
 }
 
+func InitDB() (*PostgresConfig, error) {
+	var cfg PostgresConfig
+
+	cfg.setPostgresConfig()
+
+	return &cfg, nil
+}
+
 func (p *PostgresConfig) setPostgresConfig() {
 	p.DBName = os.Getenv("POSTGRES_DBNAME")
 	p.User = os.Getenv("POSTGRES_USER")

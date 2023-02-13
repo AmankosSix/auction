@@ -23,7 +23,5 @@ func NewClient(cfg *config.PostgresConfig) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	Migrate(db.DB)
-
 	return db, nil
 }
