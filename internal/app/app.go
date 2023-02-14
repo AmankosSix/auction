@@ -6,13 +6,13 @@ import (
 	"auction/internal/repository"
 	"auction/internal/server"
 	"auction/internal/service"
+	"auction/pkg/auth"
 	"auction/pkg/database"
 	"auction/pkg/hash"
 	"context"
 	"errors"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/sirupsen/logrus"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -23,20 +23,27 @@ import (
 func Run() {
 	cfg, err := config.Init()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	db, err := database.NewClient(&cfg.Postgres)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+	tokenManager, err := auth.NewManager(cfg.Auth.JWT.SigningKey)
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
 	repos := repository.NewRepositories(db)
 	services := service.NewService(service.Deps{
-		Repos:  repos,
-		Hasher: hasher,
+		Repos:           repos,
+		Hasher:          hasher,
+		TokenManager:    tokenManager,
+		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
+		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
 	})
 	handlers := delivery.NewHandler(services)
 

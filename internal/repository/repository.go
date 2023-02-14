@@ -2,12 +2,13 @@ package repository
 
 import (
 	"auction/internal/model"
-	"context"
 	"github.com/jmoiron/sqlx"
 )
 
 type Users interface {
-	Create(ctx context.Context, user model.User) error
+	Create(user model.User) error
+	GetByCredentials(email, password string) (int, error)
+	SetSession(userID int, session model.Session) error
 }
 
 type Repositories struct {
