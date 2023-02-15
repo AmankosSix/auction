@@ -61,21 +61,21 @@ func (s *UsersService) SignIn(ctx context.Context, input UserSignInInput) (Token
 		return Tokens{}, err
 	}
 
-	id, err := s.repo.GetByCredentials(input.Email, passwordHash)
+	uuid, err := s.repo.GetByCredentials(input.Email, passwordHash)
 	if err != nil {
 		return Tokens{}, err
 	}
 
-	return s.createSession(id)
+	return s.createSession(uuid)
 }
 
-func (s *UsersService) createSession(userID int) (Tokens, error) {
+func (s *UsersService) createSession(uuid string) (Tokens, error) {
 	var (
 		res Tokens
 		err error
 	)
 
-	res.AccessToken, err = s.tokenManager.NewJWT(userID, s.accessTokenTTL)
+	res.AccessToken, err = s.tokenManager.NewJWT(uuid, s.accessTokenTTL)
 	if err != nil {
 		return res, err
 	}
@@ -90,7 +90,7 @@ func (s *UsersService) createSession(userID int) (Tokens, error) {
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
 	}
 
-	err = s.repo.SetSession(userID, session)
+	err = s.repo.SetSession(uuid, session)
 
 	return res, err
 }

@@ -7,8 +7,8 @@ import (
 
 type Users interface {
 	Create(user model.User) error
-	GetByCredentials(email, password string) (int, error)
-	SetSession(userID int, session model.Session) error
+	GetByCredentials(email, password string) (string, error)
+	SetSession(uuid string, session model.Session) error
 }
 
 type Repositories struct {
