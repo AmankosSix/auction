@@ -21,3 +21,6 @@ migrate-down:
 
 migrate-init:
 	migrate create -ext sql -dir ${POSTGRES_MIGRATION_PATH} -seq init
+
+swag:
+	swag init -g internal/app/app.go

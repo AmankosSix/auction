@@ -20,6 +20,16 @@ import (
 	"time"
 )
 
+//	@title Auction API
+//	@version 1.0
+//	@description REST API for Auction App
+
+//	@contact.name Aman
+//	@contact.email amankostleukulov@gmail.com
+
+//	@host localhost:8000
+//	@BasePath /api/v1
+
 func Run() {
 	cfg, err := config.Init()
 	if err != nil {

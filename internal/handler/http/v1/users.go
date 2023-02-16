@@ -33,6 +33,18 @@ type tokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// @Summary User SignUp
+// @Tags users-auth
+// @Description create user account
+// @ModuleID userSignUp
+// @Accept json
+// @Produce json
+// @Param input body userSignUpInput true "sign up info"
+// @Success 201 {string} string "ok"
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /users/sign-up [post]
 func (h *Handler) userSignUp(c *gin.Context) {
 	var input userSignUpInput
 	if err := c.BindJSON(&input); err != nil {
@@ -55,6 +67,18 @@ func (h *Handler) userSignUp(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
+// @Summary User SignIp
+// @Tags users-auth
+// @Description log in user account
+// @ModuleID userSignIn
+// @Accept json
+// @Produce json
+// @Param input body userSignInInput true "sign in info"
+// @Success 200 {object} tokenResponse
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /users/sign-in [post]
 func (h *Handler) userSignIn(c *gin.Context) {
 	var input userSignInInput
 	if err := c.BindJSON(&input); err != nil {
