@@ -10,4 +10,5 @@ type User struct {
 	Phone        string    `json:"phone" binding: "required"`
 	RegisteredAt time.Time `json:"registered_at" binding: "required"`
 	LastVisitAt  time.Time `json:"last_visit_at" binding: "required"`
+	RoleUUID     string    `json:"role_uuid" binding: "required"`
 }

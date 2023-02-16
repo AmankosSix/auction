@@ -20,13 +20,27 @@ func NewUsersRepo(db *sqlx.DB) *UsersRepo {
 
 func (r *UsersRepo) Create(user model.User) error {
 	var uuid string
-	query := fmt.Sprintf("INSERT INTO %s (name, password_hash, email, phone, registered_at, last_visit_at) values ($1, $2, $3, $4, $5, $6) RETURNING uuid", database.UsersTable)
-	row := r.db.QueryRow(query, user.Name, user.Password, user.Email, user.Phone, user.RegisteredAt, user.LastVisitAt)
+	roleUUID, err := r.getRole("user")
+	if err != nil {
+		return err
+	}
+	query := fmt.Sprintf("INSERT INTO %s (name, password_hash, email, phone, registered_at, last_visit_at, role_uuid) values ($1, $2, $3, $4, $5, $6, $7) RETURNING uuid", database.UsersTable)
+	row := r.db.QueryRow(query, user.Name, user.Password, user.Email, user.Phone, user.RegisteredAt, user.LastVisitAt, roleUUID)
 	if err := row.Scan(&uuid); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *UsersRepo) getRole(role string) (string, error) {
+	var uuid string
+	query := fmt.Sprintf("SELECT uuid FROM %s WHERE role=$1", database.RolesTable)
+
+	if err := r.db.Get(&uuid, query, role); err != nil {
+		return "", model.ErrRoleNotFound
+	}
+	return uuid, nil
 }
 
 func (r *UsersRepo) GetByCredentials(email, password string) (string, error) {
