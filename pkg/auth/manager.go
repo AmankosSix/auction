@@ -3,14 +3,13 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"math/rand"
+	"github.com/golang-jwt/jwt"
 	"time"
 )
 
 type TokenManager interface {
 	NewJWT(uuid string, ttl time.Duration) (string, error)
-	Parse(accessToken string) (string, error)
+	ParseJWT(accessToken string) (string, error)
 	NewRefreshToken() (string, error)
 }
 
@@ -35,7 +34,7 @@ func (m *Manager) NewJWT(uuid string, ttl time.Duration) (string, error) {
 	return token.SignedString([]byte(m.signingKey))
 }
 
-func (m *Manager) Parse(accessToken string) (string, error) {
+func (m *Manager) ParseJWT(accessToken string) (string, error) {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (i interface{}, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -54,17 +53,4 @@ func (m *Manager) Parse(accessToken string) (string, error) {
 	}
 
 	return claims["sub"].(string), nil
-}
-
-func (m *Manager) NewRefreshToken() (string, error) {
-	b := make([]byte, 32)
-
-	s := rand.NewSource(time.Now().Unix())
-	r := rand.New(s)
-
-	if _, err := r.Read(b); err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%s", b), nil
 }

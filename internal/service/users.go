@@ -80,7 +80,7 @@ func (s *UsersService) createSession(uuid string) (Tokens, error) {
 		return res, err
 	}
 
-	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
+	res.RefreshToken, err = s.tokenManager.NewJWT(uuid, s.refreshTokenTTL)
 	if err != nil {
 		return res, err
 	}

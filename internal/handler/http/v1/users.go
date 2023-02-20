@@ -9,10 +9,11 @@ import (
 )
 
 func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
-	users := api.Group("/users")
+	users := api.Group("/auth")
 	{
 		users.POST("/sign-up", h.userSignUp)
 		users.POST("/sign-in", h.userSignIn)
+		users.POST("/refresh", h.userSignIn)
 	}
 }
 
@@ -28,9 +29,8 @@ type userSignInInput struct {
 	Password string `json:"password" binding:"required,min=8,max=64"'`
 }
 
-type tokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+type userSignInResponse struct {
+	AccessToken string `json:"access_token"`
 }
 
 // @Summary User SignUp
@@ -74,7 +74,7 @@ func (h *Handler) userSignUp(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param input body userSignInInput true "sign in info"
-// @Success 200 {object} tokenResponse
+// @Success 200 {object} userSignInResponse
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
@@ -104,8 +104,9 @@ func (h *Handler) userSignIn(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, tokenResponse{
-		AccessToken:  res.AccessToken,
-		RefreshToken: res.RefreshToken,
+	c.SetCookie("refresh_token", res.RefreshToken, 60*60, "/auth", "localhost", false, true)
+
+	c.JSON(http.StatusOK, userSignInResponse{
+		AccessToken: res.AccessToken,
 	})
 }
