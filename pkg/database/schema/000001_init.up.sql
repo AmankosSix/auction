@@ -12,7 +12,7 @@ CREATE TABLE users (
     uuid UUID DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(255) NOT NULL,
     registered_at TIMESTAMP NOT NULL,
     last_visit_at TIMESTAMP NOT NULL,
