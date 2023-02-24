@@ -12,3 +12,13 @@ type User struct {
 	LastVisitAt  time.Time `json:"last_visit_at" binding: "required"`
 	RoleUUID     string    `json:"role_uuid" binding: "required"`
 }
+
+type UserInfo struct {
+	UUID  string `json:"uuid" db:"uuid"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+	//RegisteredAt time.Time `json:"registered_at"`
+	//LastVisitAt  time.Time `json:"last_visit_at"`
+	Role string `json:"role"`
+}

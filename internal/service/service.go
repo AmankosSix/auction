@@ -1,6 +1,7 @@
 package service
 
 import (
+	"auction/internal/model"
 	"auction/internal/repository"
 	"auction/pkg/auth"
 	"auction/pkg/hash"
@@ -11,6 +12,7 @@ import (
 type Users interface {
 	SignUp(ctx context.Context, input UserSignUpInput) error
 	SignIn(ctx context.Context, input UserSignInInput) (Tokens, error)
+	UserInfo(uuid string) (model.UserInfo, error)
 }
 
 type UserSignUpInput struct {

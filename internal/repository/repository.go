@@ -8,6 +8,7 @@ import (
 type Users interface {
 	Create(user model.User) error
 	GetByCredentials(email, password string) (string, error)
+	GetByUUID(uuid string) (model.UserInfo, error)
 	SetSession(uuid string, session model.Session) error
 }
 

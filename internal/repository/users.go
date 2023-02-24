@@ -59,3 +59,13 @@ func (r *UsersRepo) SetSession(uuid string, session model.Session) error {
 
 	return err
 }
+
+func (r *UsersRepo) GetByUUID(uuid string) (model.UserInfo, error) {
+	var user model.UserInfo
+	query := fmt.Sprintf("SELECT u.uuid, name, email, phone, role FROM %s u INNER JOIN %s r ON r.uuid = u.role_uuid WHERE u.uuid = $1", database.UsersTable, database.RolesTable)
+	if err := r.db.Get(&user, query, uuid); err != nil {
+		return model.UserInfo{}, model.ErrUserNotFound
+	}
+
+	return user, nil
+}

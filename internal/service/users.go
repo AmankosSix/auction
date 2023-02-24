@@ -94,3 +94,12 @@ func (s *UsersService) createSession(uuid string) (Tokens, error) {
 
 	return res, err
 }
+
+func (s *UsersService) UserInfo(uuid string) (model.UserInfo, error) {
+	user, err := s.repo.GetByUUID(uuid)
+	if err != nil {
+		return model.UserInfo{}, err
+	}
+
+	return user, nil
+}

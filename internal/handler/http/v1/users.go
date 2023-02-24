@@ -9,14 +9,19 @@ import (
 )
 
 func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
-	users := api.Group("/auth")
+	auth := api.Group("/auth")
 	{
-		users.POST("/sign-up", h.userSignUp)
-		users.POST("/sign-in", h.userSignIn)
-		users.POST("/refresh", h.userSignIn)
+		auth.POST("/sign-up", h.userSignUp)
+		auth.POST("/sign-in", h.userSignIn)
+		auth.POST("/refresh", h.userSignIn)
+	}
+	user := api.Group("/user", h.userIdentity)
+	{
+		user.GET("/info", h.userInfo)
 	}
 }
 
+// Sign Up
 type userSignUpInput struct {
 	Name     string `json:"name" binding:"required,min=2,max=64"`
 	Email    string `json:"email" binding:"required,email,max=64"`
@@ -29,12 +34,13 @@ type userSignInInput struct {
 	Password string `json:"password" binding:"required,min=8,max=64"'`
 }
 
+// Sign In
 type userSignInResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken string `json:"accessToken"`
 }
 
 // @Summary User SignUp
-// @Tags users-auth
+// @Tags Auth
 // @Description create user account
 // @ModuleID userSignUp
 // @Accept json
@@ -44,7 +50,7 @@ type userSignInResponse struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /users/sign-up [post]
+// @Router /auth/sign-up [post]
 func (h *Handler) userSignUp(c *gin.Context) {
 	var input userSignUpInput
 	if err := c.BindJSON(&input); err != nil {
@@ -67,8 +73,8 @@ func (h *Handler) userSignUp(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-// @Summary User SignIp
-// @Tags users-auth
+// @Summary User SignIn
+// @Tags Auth
 // @Description log in user account
 // @ModuleID userSignIn
 // @Accept json
@@ -78,7 +84,7 @@ func (h *Handler) userSignUp(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /users/sign-in [post]
+// @Router /auth/sign-in [post]
 func (h *Handler) userSignIn(c *gin.Context) {
 	var input userSignInInput
 	if err := c.BindJSON(&input); err != nil {
@@ -109,4 +115,40 @@ func (h *Handler) userSignIn(c *gin.Context) {
 	c.JSON(http.StatusOK, userSignInResponse{
 		AccessToken: res.AccessToken,
 	})
+}
+
+// @Summary User Info
+// @Tags Auth
+// @Description user info
+// @ModuleID userInfo
+// @Accept json
+// @Produce json
+// @Param input body userSignInInput true "sign in info"
+// @Success 200 {object} model.UserInfo
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /user/info [get]
+func (h *Handler) userInfo(c *gin.Context) {
+	uuid, ok := c.GetQuery("uuid")
+	if !ok {
+		newResponse(c, http.StatusBadRequest, "UUID isn't given")
+
+		return
+	}
+
+	res, err := h.services.Users.UserInfo(uuid)
+	if err != nil {
+		if errors.Is(err, model.ErrUserNotFound) {
+			newResponse(c, http.StatusBadRequest, err.Error())
+
+			return
+		}
+
+		newResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }

@@ -55,7 +55,7 @@ func Run() {
 		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
 	})
-	handlers := delivery.NewHandler(services)
+	handlers := delivery.NewHandler(services, tokenManager)
 
 	srv := server.NewServer(&cfg.HTTP, handlers.Init(cfg))
 
