@@ -130,8 +130,8 @@ func (h *Handler) userSignIn(c *gin.Context) {
 // @Failure default {object} errorResponse
 // @Router /user/info [get]
 func (h *Handler) userInfo(c *gin.Context) {
-	uuid, ok := c.GetQuery("uuid")
-	if !ok {
+	uuid := c.GetString("uuid")
+	if uuid == "" {
 		newResponse(c, http.StatusBadRequest, "UUID isn't given")
 
 		return
