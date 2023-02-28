@@ -69,3 +69,10 @@ func (r *UsersRepo) GetByUUID(uuid string) (model.UserInfo, error) {
 
 	return user, nil
 }
+
+func (r *UsersRepo) UpdateUserInfo(uuid string, input model.UpdateUserInfoInput) error {
+	query := fmt.Sprintf("UPDATE %s SET name=$1, phone=$2 WHERE uuid = $3", database.UsersTable)
+	_, err := r.db.Exec(query, input.Name, &input.Phone, uuid)
+
+	return err
+}

@@ -9,6 +9,7 @@ type Users interface {
 	Create(user model.User) error
 	GetByCredentials(email, password string) (string, error)
 	GetByUUID(uuid string) (model.UserInfo, error)
+	UpdateUserInfo(uuid string, input model.UpdateUserInfoInput) error
 	SetSession(uuid string, session model.Session) error
 }
 

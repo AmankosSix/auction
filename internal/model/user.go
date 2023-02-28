@@ -22,3 +22,8 @@ type UserInfo struct {
 	//LastVisitAt  time.Time `json:"last_visit_at"`
 	Role string `json:"role"`
 }
+
+type UpdateUserInfoInput struct {
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+}

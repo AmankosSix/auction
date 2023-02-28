@@ -4,6 +4,7 @@ import (
 	"auction/internal/model"
 	"auction/internal/service"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -18,6 +19,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 	user := api.Group("/user", h.userIdentity)
 	{
 		user.GET("/info", h.userInfo)
+		user.POST("/info/:uuid", h.userUpdateInfo)
 	}
 }
 
@@ -25,7 +27,7 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 type userSignUpInput struct {
 	Name     string `json:"name" binding:"required,min=2,max=64"`
 	Email    string `json:"email" binding:"required,email,max=64"`
-	Phone    string `json:"phone" binding:"required,max=12"`
+	Phone    string `json:"phone" binding:"required,max=10"`
 	Password string `json:"password" binding:"required,min=8,max=64"`
 }
 
@@ -39,13 +41,19 @@ type userSignInResponse struct {
 	AccessToken string `json:"accessToken"`
 }
 
-// @Summary User SignUp
-// @Tags Auth
-// @Description create user account
+// User Info Update
+type userUpdateInfoInput struct {
+	Name  string `json:"name" binding:"required,min=2,max=64"`
+	Phone string `json:"phone" binding:"required,max=10"`
+}
+
+// @Summary Sign up
+// @Tags Account
+// @Description Create account with role user
 // @ModuleID userSignUp
 // @Accept json
 // @Produce json
-// @Param input body userSignUpInput true "sign up info"
+// @Param input body userSignUpInput true "Sign Up"
 // @Success 201 {string} string "ok"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
@@ -70,17 +78,21 @@ func (h *Handler) userSignUp(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	message := fmt.Sprintf("User: %s successfully created!", input.Name)
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"message": message,
+	})
 }
 
-// @Summary User SignIn
-// @Tags Auth
-// @Description log in user account
+// @Summary Sign in
+// @Tags Account
+// @Description Sign in to user account
 // @ModuleID userSignIn
 // @Accept json
 // @Produce json
-// @Param input body userSignInInput true "sign in info"
-// @Success 200 {object} userSignInResponse
+// @Param input body userSignInInput true "Sign In"
+// @Success 201 {string} string "ok"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
@@ -118,13 +130,12 @@ func (h *Handler) userSignIn(c *gin.Context) {
 }
 
 // @Summary User Info
-// @Tags Auth
-// @Description user info
+// @Tags Account
+// @Description Get user information
 // @ModuleID userInfo
 // @Accept json
 // @Produce json
-// @Param input body userSignInInput true "sign in info"
-// @Success 200 {object} model.UserInfo
+// @Success 201 {string} string "ok"
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
@@ -151,4 +162,48 @@ func (h *Handler) userInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+// @Summary Update User Info
+// @Tags Account
+// @Description Update user information
+// @ModuleID userUpdateInfo
+// @Accept json
+// @Produce json
+// @Param uuid path string true "User uuid"
+// @Param input body userUpdateInfoInput true "Update User Information"
+// @Success 201 {string} string "ok"
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /user/info/{uuid} [post]
+func (h *Handler) userUpdateInfo(c *gin.Context) {
+	uuid := c.Param("uuid")
+	if uuid == "" {
+		newResponse(c, http.StatusBadRequest, "UUID is empty")
+
+		return
+	}
+
+	var input userUpdateInfoInput
+	if err := c.BindJSON(&input); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	if err := h.services.Users.UserUpdateInfo(uuid, model.UpdateUserInfoInput{
+		Name:  input.Name,
+		Phone: input.Phone,
+	}); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	message := fmt.Sprintf("User: %s successfully updated!", input.Name)
+
+	c.JSON(http.StatusOK, map[string]string{
+		"message": message,
+	})
 }

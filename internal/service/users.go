@@ -103,3 +103,7 @@ func (s *UsersService) UserInfo(uuid string) (model.UserInfo, error) {
 
 	return user, nil
 }
+
+func (s *UsersService) UserUpdateInfo(uuid string, input model.UpdateUserInfoInput) error {
+	return s.repo.UpdateUserInfo(uuid, input)
+}

@@ -13,6 +13,7 @@ type Users interface {
 	SignUp(ctx context.Context, input UserSignUpInput) error
 	SignIn(ctx context.Context, input UserSignInInput) (Tokens, error)
 	UserInfo(uuid string) (model.UserInfo, error)
+	UserUpdateInfo(uuid string, input model.UpdateUserInfoInput) error
 }
 
 type UserSignUpInput struct {
