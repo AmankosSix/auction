@@ -9,6 +9,7 @@ import (
 
 const (
 	UsersTable = "users"
+	StaffTable = "staff"
 	RolesTable = "roles"
 )
 

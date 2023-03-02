@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"auction/internal/model"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
@@ -8,12 +9,17 @@ import (
 )
 
 type TokenManager interface {
-	NewJWT(uuid string, ttl time.Duration) (string, error)
-	ParseJWT(accessToken string) (string, error)
+	NewJWT(body model.TokenBody, ttl time.Duration) (string, error)
+	ParseJWT(accessToken string) (model.TokenBody, error)
 }
 
 type Manager struct {
 	signingKey string
+}
+
+type JWTClaim struct {
+	Role string `json:"role"`
+	jwt.StandardClaims
 }
 
 func NewManager(signingKey string) (*Manager, error) {
@@ -24,16 +30,19 @@ func NewManager(signingKey string) (*Manager, error) {
 	return &Manager{signingKey: signingKey}, nil
 }
 
-func (m *Manager) NewJWT(uuid string, ttl time.Duration) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(ttl).Unix(),
-		Subject:   uuid,
+func (m *Manager) NewJWT(body model.TokenBody, ttl time.Duration) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &JWTClaim{
+		body.Role,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(ttl).Unix(),
+			Subject:   body.Uuid,
+		},
 	})
 
 	return token.SignedString([]byte(m.signingKey))
 }
 
-func (m *Manager) ParseJWT(accessToken string) (string, error) {
+func (m *Manager) ParseJWT(accessToken string) (model.TokenBody, error) {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (i interface{}, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -43,13 +52,18 @@ func (m *Manager) ParseJWT(accessToken string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return model.TokenBody{}, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", fmt.Errorf("error get user claims from token")
+		return model.TokenBody{}, fmt.Errorf("error get user claims from token")
 	}
 
-	return claims["sub"].(string), nil
+	body := model.TokenBody{
+		Role: claims["role"].(string),
+		Uuid: claims["sub"].(string),
+	}
+
+	return body, nil
 }

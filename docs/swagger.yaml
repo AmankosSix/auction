@@ -5,12 +5,53 @@ definitions:
       message:
         type: string
     type: object
-  v1.tokenResponse:
+  v1.staffSignInInput:
     properties:
-      access_token:
+      email:
+        maxLength: 64
         type: string
-      refresh_token:
+      password:
+        maxLength: 64
+        minLength: 8
         type: string
+    required:
+    - email
+    - password
+    type: object
+  v1.staffSignUpInput:
+    properties:
+      email:
+        maxLength: 64
+        type: string
+      name:
+        maxLength: 64
+        minLength: 2
+        type: string
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+      phone:
+        maxLength: 10
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - phone
+    type: object
+  v1.staffUpdateInfoInput:
+    properties:
+      name:
+        maxLength: 64
+        minLength: 2
+        type: string
+      phone:
+        maxLength: 10
+        type: string
+    required:
+    - name
+    - phone
     type: object
   v1.userSignInInput:
     properties:
@@ -39,12 +80,25 @@ definitions:
         minLength: 8
         type: string
       phone:
-        maxLength: 12
+        maxLength: 10
         type: string
     required:
     - email
     - name
     - password
+    - phone
+    type: object
+  v1.userUpdateInfoInput:
+    properties:
+      name:
+        maxLength: 64
+        minLength: 2
+        type: string
+      phone:
+        maxLength: 10
+        type: string
+    required:
+    - name
     - phone
     type: object
 host: localhost:8000
@@ -56,25 +110,25 @@ info:
   title: Auction API
   version: "1.0"
 paths:
-  /users/sign-in:
+  /auth-staff/sign-in:
     post:
       consumes:
       - application/json
-      description: log in user account
+      description: Sign in to staff account
       parameters:
-      - description: sign in info
+      - description: Sign In
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/v1.userSignInInput'
+          $ref: '#/definitions/v1.staffSignInInput'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: ok
           schema:
-            $ref: '#/definitions/v1.tokenResponse'
+            type: string
         "400":
           description: Bad Request
           schema:
@@ -91,16 +145,92 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/v1.errorResponse'
-      summary: User SignIp
+      summary: Sign in
       tags:
-      - users-auth
-  /users/sign-up:
+      - Staff
+  /auth-staff/sign-up:
     post:
       consumes:
       - application/json
-      description: create user account
+      description: Owner creates staff
       parameters:
-      - description: sign up info
+      - description: Sign Up
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.staffSignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Sign up
+      tags:
+      - Staff
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Sign in to user account
+      parameters:
+      - description: Sign In
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.userSignInInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Sign in
+      tags:
+      - Account
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Create account with role user
+      parameters:
+      - description: Sign Up
         in: body
         name: input
         required: true
@@ -129,7 +259,155 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/v1.errorResponse'
-      summary: User SignUp
+      summary: Sign up
       tags:
-      - users-auth
+      - Account
+  /staff/info:
+    get:
+      consumes:
+      - application/json
+      description: Get staff information
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Staff Info
+      tags:
+      - Staff
+  /staff/info/{uuid}:
+    post:
+      consumes:
+      - application/json
+      description: Update staff information
+      parameters:
+      - description: Staff uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Update Staff Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.staffUpdateInfoInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Update Staff Info
+      tags:
+      - Staff
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: Get user information
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: User Info
+      tags:
+      - Account
+  /user/info/{uuid}:
+    post:
+      consumes:
+      - application/json
+      description: Update user information
+      parameters:
+      - description: User uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Update User Information
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.userUpdateInfoInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Update User Info
+      tags:
+      - Account
 swagger: "2.0"

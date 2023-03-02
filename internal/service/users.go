@@ -29,6 +29,18 @@ func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenMan
 	}
 }
 
+type UserSignUpInput struct {
+	Name     string
+	Email    string
+	Phone    string
+	Password string
+}
+
+type UserSignInInput struct {
+	Email    string
+	Password string
+}
+
 func (s *UsersService) SignUp(ctx context.Context, input UserSignUpInput) error {
 	passwordHash, err := s.hasher.Hash(input.Password)
 	if err != nil {
@@ -61,26 +73,26 @@ func (s *UsersService) SignIn(ctx context.Context, input UserSignInInput) (Token
 		return Tokens{}, err
 	}
 
-	uuid, err := s.repo.GetByCredentials(input.Email, passwordHash)
+	credentials, err := s.repo.GetByCredentials(input.Email, passwordHash)
 	if err != nil {
 		return Tokens{}, err
 	}
 
-	return s.createSession(uuid)
+	return s.createSession(credentials)
 }
 
-func (s *UsersService) createSession(uuid string) (Tokens, error) {
+func (s *UsersService) createSession(body model.TokenBody) (Tokens, error) {
 	var (
 		res Tokens
 		err error
 	)
 
-	res.AccessToken, err = s.tokenManager.NewJWT(uuid, s.accessTokenTTL)
+	res.AccessToken, err = s.tokenManager.NewJWT(body, s.accessTokenTTL)
 	if err != nil {
 		return res, err
 	}
 
-	res.RefreshToken, err = s.tokenManager.NewJWT(uuid, s.refreshTokenTTL)
+	res.RefreshToken, err = s.tokenManager.NewJWT(body, s.refreshTokenTTL)
 	if err != nil {
 		return res, err
 	}
@@ -90,7 +102,7 @@ func (s *UsersService) createSession(uuid string) (Tokens, error) {
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
 	}
 
-	err = s.repo.SetSession(uuid, session)
+	err = s.repo.SetSession(body.Uuid, session)
 
 	return res, err
 }

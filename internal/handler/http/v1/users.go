@@ -31,12 +31,12 @@ type userSignUpInput struct {
 	Password string `json:"password" binding:"required,min=8,max=64"`
 }
 
+// Sign In
 type userSignInInput struct {
 	Email    string `json:"email" binding:"required,email,max=64"`
 	Password string `json:"password" binding:"required,min=8,max=64"'`
 }
 
-// Sign In
 type userSignInResponse struct {
 	AccessToken string `json:"accessToken"`
 }
