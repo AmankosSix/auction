@@ -70,3 +70,7 @@ func (s *OwnerService) StaffList() ([]model.StaffInfo, error) {
 
 	return staff, nil
 }
+
+func (s *OwnerService) RemoveStaff(uuid string) error {
+	return s.repo.RemoveStaff(uuid)
+}

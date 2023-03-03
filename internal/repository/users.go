@@ -45,9 +45,9 @@ func (r *UsersRepo) getRole(role string) (string, error) {
 
 func (r *UsersRepo) GetByCredentials(email, password string) (model.TokenBody, error) {
 	var res model.TokenBody
-	query := fmt.Sprintf("SELECT uuid, role FROM %s u INNER JOIN %s r ON u.role_uuid = r.uuid WHERE u.email=$1 AND u.password_hash=$2", database.UsersTable, database.RolesTable)
+	query := fmt.Sprintf("SELECT u.uuid, role FROM %s u INNER JOIN %s r ON u.role_uuid = r.uuid WHERE u.email=$1 AND u.password_hash=$2", database.UsersTable, database.RolesTable)
 	if err := r.db.Get(&res, query, email, password); err != nil {
-		return model.TokenBody{}, model.ErrStaffNotFound
+		return model.TokenBody{}, model.ErrUserNotFound
 	}
 
 	return res, nil

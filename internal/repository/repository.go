@@ -23,18 +23,25 @@ type Staff interface {
 type Owner interface {
 	Create(staff model.Staff) error
 	GetAllStaff() ([]model.StaffInfo, error)
+	RemoveStaff(uuid string) error
+}
+
+type Dictionaries interface {
+	GetAllRoles() ([]model.Role, error)
 }
 
 type Repositories struct {
-	Users Users
-	Staff Staff
-	Owner Owner
+	Users        Users
+	Staff        Staff
+	Owner        Owner
+	Dictionaries Dictionaries
 }
 
 func NewRepositories(db *sqlx.DB) *Repositories {
 	return &Repositories{
-		Users: NewUsersRepo(db),
-		Staff: NewStaffRepo(db),
-		Owner: NewOwnerRepo(db),
+		Users:        NewUsersRepo(db),
+		Staff:        NewStaffRepo(db),
+		Owner:        NewOwnerRepo(db),
+		Dictionaries: NewDictionariesRepo(db),
 	}
 }

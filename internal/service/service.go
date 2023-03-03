@@ -25,6 +25,11 @@ type Staff interface {
 type Owner interface {
 	SignUp(ctx context.Context, input OwnerSignUpInput) error
 	StaffList() ([]model.StaffInfo, error)
+	RemoveStaff(uuid string) error
+}
+
+type Dictionaries interface {
+	RolesList() ([]model.Role, error)
 }
 
 type Tokens struct {
@@ -33,9 +38,10 @@ type Tokens struct {
 }
 
 type Services struct {
-	Users Users
-	Staff Staff
-	Owner Owner
+	Users        Users
+	Staff        Staff
+	Owner        Owner
+	Dictionaries Dictionaries
 }
 
 type Deps struct {
@@ -50,10 +56,12 @@ func NewService(deps Deps) *Services {
 	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	staffService := NewStaffService(deps.Repos.Staff, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 	ownerService := NewOwnerService(deps.Repos.Owner, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
+	dictionariesService := NewDictionariesService(deps.Repos.Dictionaries, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 
 	return &Services{
-		Users: usersService,
-		Staff: staffService,
-		Owner: ownerService,
+		Users:        usersService,
+		Staff:        staffService,
+		Owner:        ownerService,
+		Dictionaries: dictionariesService,
 	}
 }

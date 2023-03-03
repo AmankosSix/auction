@@ -15,11 +15,11 @@ func (h *Handler) initUsersRoutes(api *gin.RouterGroup) {
 		auth.POST("/sign-up", h.userSignUp)
 		auth.POST("/sign-in", h.userSignIn)
 		auth.POST("/refresh", h.userSignIn)
-	}
-	user := api.Group("/user", h.userIdentity)
-	{
-		user.GET("/info", h.userInfo)
-		user.POST("/info/:uuid", h.userUpdateInfo)
+		user := auth.Group("/", h.userIdentity)
+		{
+			user.GET("/info", h.userInfo)
+			user.POST("/info/:uuid", h.userUpdateInfo)
+		}
 	}
 }
 
@@ -144,6 +144,13 @@ func (h *Handler) userInfo(c *gin.Context) {
 	uuid := c.GetString("uuid")
 	if uuid == "" {
 		newResponse(c, http.StatusBadRequest, "UUID isn't given")
+
+		return
+	}
+
+	role := c.GetString("role")
+	if role != "user" && role != "" {
+		h.staffInfo(c)
 
 		return
 	}

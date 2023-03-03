@@ -14,6 +14,7 @@ func (h *Handler) initOwnerRoutes(api *gin.RouterGroup) {
 	{
 		owner.POST("/sign-up", h.staffSignUp)
 		owner.GET("/list", h.staffList)
+		owner.DELETE("/:uuid", h.removeStaff)
 	}
 }
 
@@ -89,4 +90,34 @@ func (h *Handler) staffList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+// @Summary Remove Staff
+// @Tags Owner
+// @Description Remove staff by ID
+// @ModuleID removeStaff
+// @Accept json
+// @Produce json
+// @Success 201 {string} string "ok"
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /owner/staff/{uuid} [delete]
+func (h *Handler) removeStaff(c *gin.Context) {
+	uuid := c.Param("uuid")
+	if uuid == "" {
+		newResponse(c, http.StatusBadRequest, "UUID is empty")
+
+		return
+	}
+
+	if err := h.services.Owner.RemoveStaff(uuid); err != nil {
+		newResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{
+		"message": "Staff successfully removed",
+	})
 }

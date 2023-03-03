@@ -14,11 +14,10 @@ func (h *Handler) initStaffRoutes(api *gin.RouterGroup) {
 	{
 		auth.POST("/sign-in", h.staffSignIn)
 		auth.POST("/refresh", h.staffSignIn)
-	}
-	staff := api.Group("/staff", h.staffIdentity)
-	{
-		staff.GET("/info", h.staffInfo)
-		staff.POST("/info/:uuid", h.staffUpdateInfo)
+		staff := auth.Group("/", h.staffIdentity)
+		{
+			staff.POST("/info/:uuid", h.staffUpdateInfo)
+		}
 	}
 }
 

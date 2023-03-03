@@ -11,6 +11,7 @@ import (
 const (
 	authorizationHeader = "Authorization"
 	userCtx             = "uuid"
+	roleCtx             = "role"
 )
 
 func (h *Handler) parseAuthHeader(c *gin.Context) (model.TokenBody, error) {
@@ -38,6 +39,7 @@ func (h *Handler) userIdentity(c *gin.Context) {
 	}
 
 	c.Set(userCtx, body.Uuid)
+	c.Set(roleCtx, body.Role)
 }
 
 func (h *Handler) staffIdentity(c *gin.Context) {
@@ -53,9 +55,7 @@ func (h *Handler) ownerIdentity(c *gin.Context) {
 	body, err := h.parseAuthHeader(c)
 	if err != nil {
 		newResponse(c, http.StatusUnauthorized, err.Error())
-	}
-
-	if body.Role != "owner" {
+	} else if body.Role != "owner" {
 		newResponse(c, http.StatusUnauthorized, "permission denied")
 	}
 
