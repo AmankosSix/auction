@@ -20,6 +20,7 @@ func (h *Handler) initOwnerRoutes(api *gin.RouterGroup) {
 
 // Sign Up
 type ownerSignUpInput struct {
+	Uuid     string `json:"password" binding:"required"`
 	Name     string `json:"name" binding:"required,min=2,max=64"`
 	Email    string `json:"email" binding:"required,email,max=64"`
 	Phone    string `json:"phone" binding:"required,max=10"`

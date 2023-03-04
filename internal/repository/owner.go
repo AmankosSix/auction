@@ -5,7 +5,6 @@ import (
 	"auction/pkg/database"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 )
 
 type OwnerRepo struct {
@@ -54,7 +53,6 @@ func (r *OwnerRepo) GetAllStaff() ([]model.StaffInfo, error) {
 }
 
 func (r *OwnerRepo) RemoveStaff(uuid string) error {
-	logrus.Info(uuid)
 	query := fmt.Sprintf("DELETE FROM %s WHERE uuid = $1", database.StaffTable)
 	if _, err := r.db.Exec(query, uuid); err != nil {
 		return err

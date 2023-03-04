@@ -5,20 +5,7 @@ definitions:
       message:
         type: string
     type: object
-  v1.staffSignInInput:
-    properties:
-      email:
-        maxLength: 64
-        type: string
-      password:
-        maxLength: 64
-        minLength: 8
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  v1.staffSignUpInput:
+  v1.ownerSignUpInput:
     properties:
       email:
         maxLength: 64
@@ -38,7 +25,21 @@ definitions:
     - email
     - name
     - password
+    - password
     - phone
+    type: object
+  v1.staffSignInInput:
+    properties:
+      email:
+        maxLength: 64
+        type: string
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
     type: object
   v1.staffUpdateInfoInput:
     properties:
@@ -148,44 +149,6 @@ paths:
       summary: Sign in
       tags:
       - Staff
-  /auth-staff/sign-up:
-    post:
-      consumes:
-      - application/json
-      description: Owner creates staff
-      parameters:
-      - description: Sign Up
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/v1.staffSignUpInput'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: ok
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.errorResponse'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/v1.errorResponse'
-      summary: Sign up
-      tags:
-      - Staff
   /auth/sign-in:
     post:
       consumes:
@@ -262,6 +225,106 @@ paths:
       summary: Sign up
       tags:
       - Account
+  /owner/staff/{uuid}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove staff by ID
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Remove Staff
+      tags:
+      - Owner
+  /owner/staff/list:
+    get:
+      consumes:
+      - application/json
+      description: Get all staff information
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Staff Info
+      tags:
+      - Owner
+  /owner/staff/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Owner creates staff
+      parameters:
+      - description: Sign Up Staff
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.ownerSignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/v1.errorResponse'
+      summary: Sign up new staff
+      tags:
+      - Owner
   /staff/info:
     get:
       consumes:
